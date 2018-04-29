@@ -83,7 +83,7 @@ class HashEmbedding(Layer):
         for hash_fun_num in range(self.num_hash_functions):
             W0 = K.gather(W, idx_bucket_all[:,:,hash_fun_num]*(1-K.cast(K.equal(0, input_w), 'int32')))
             p_0 = K.gather(self.p[:,hash_fun_num], input_p)
-            p = K.expand_dims(p_0,dim=-1)
+            p = K.expand_dims(p_0, -1)
             pvals.append(p)
             retvals.append(W0*p)
         retval = self.aggregation_function(retvals)
@@ -92,7 +92,7 @@ class HashEmbedding(Layer):
         return retval
 
 
-    def get_output_shape_for(self, input_shape):
+    def compute_output_shape(self, input_shape):
         weight_addition = 0
         if self.append_weight:
             weight_addition = self.num_hash_functions
@@ -114,8 +114,8 @@ class ReduceSum(Layer):
         x = K.cast(x, 'float32')
         return K.sum(x, axis=1,keepdims=False)
 
-    def compute_mask(self, input, mask):
+    def compute_mask(self, input, mask=None):
         return None
 
-    def get_output_shape_for(self, input_shape):
+    def compute_output_shape(self, input_shape):
         return (input_shape[0][0], input_shape[0][2])
